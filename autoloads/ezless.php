@@ -221,31 +221,34 @@ class ezLessOperator{
             foreach( $files as $file){
                 $match = eZTemplateDesignResource::fileMatch( $bases, '', 'stylesheets/'.$file, $triedFiles );
 
-                $content = file_get_contents( $match['path'] );
-                $content = ezjscPacker::fixImgPaths( $content, $match['path'] );
+                if ( file_exists( $match['path'] ) )
+                {
+                	$content = file_get_contents( $match['path'] );
+	                $content = ezjscPacker::fixImgPaths( $content, $match['path'] );
 
 
-                if( $useOneFile == "true" ){
-                    $cssContent .= $content;
-                }else{
-                    try
-                    {
-                        $parsedContent = $less->parse( $content );
-                        if( $packerLevel > 1 )
-                        {
-                            $parsedContent = $this->optimizeCSS( $parsedContent, $packerLevel );
-                        }
-                        $file = md5(uniqid(mt_rand(), true)) . ".css";
-                        $file = $path . '/' . $file;
-                        $clusterFile = eZClusterFileHandler::instance( $file );
-                        $clusterFile->storeContents( $parsedContent, 'ezless', 'text/css' );
-                        eZURI::transformURI( $file, true );
-                        $html .= '<link rel="stylesheet" type="text/css" href="' . $file . '" />' . PHP_EOL;
-                    }
-                    catch( Exception $e )
-                    {
-                        eZDebug::writeError( $e->getMessage(), 'ezLessOperator for ' . $match['path'] );
-                    }
+	                if( $useOneFile == "true" ){
+	                    $cssContent .= $content;
+	                }else{
+	                    try
+	                    {
+	                        $parsedContent = $less->parse( $content );
+	                        if( $packerLevel > 1 )
+	                        {
+	                            $parsedContent = $this->optimizeCSS( $parsedContent, $packerLevel );
+	                        }
+	                        $file = md5(uniqid(mt_rand(), true)) . ".css";
+	                        $file = $path . '/' . $file;
+	                        $clusterFile = eZClusterFileHandler::instance( $file );
+	                        $clusterFile->storeContents( $parsedContent, 'ezless', 'text/css' );
+	                        eZURI::transformURI( $file, true );
+	                        $html .= '<link rel="stylesheet" type="text/css" href="' . $file . '" />' . PHP_EOL;
+	                    }
+	                    catch( Exception $e )
+	                    {
+	                        eZDebug::writeError( $e->getMessage(), 'ezLessOperator for ' . $match['path'] );
+	                    }
+	                }
                 }
             }
 
